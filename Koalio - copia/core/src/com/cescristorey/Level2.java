@@ -20,12 +20,13 @@ import java.util.logging.Logger;
 
 public class Level2 implements Screen {
     Stage stage;
-    TiledMap map2;
+    TiledMap map;
     OrthogonalTiledMapRenderer renderer;
     OrthographicCamera camera;
     Mario mario;
     ArrayList<Goomba> goombas;
     ArrayList <Moneda> monedas;
+    ArrayList <Turtle> tortugas;
     MarioBros game;
     Seta seta;
     int score=0;
@@ -36,7 +37,7 @@ public class Level2 implements Screen {
     }
     
     public void loadMoneda(float startX, float startY){
-        TiledMapTileLayer monedas=(TiledMapTileLayer) map2.getLayers().get("Monedas");
+        TiledMapTileLayer monedas=(TiledMapTileLayer) map.getLayers().get("Monedas");
         float endX=startX + monedas.getWidth();
         float endY=startY + monedas.getHeight();
 
@@ -64,7 +65,7 @@ public class Level2 implements Screen {
     }
     
      public void loadSeta(float startX, float startY){
-        TiledMapTileLayer setas=(TiledMapTileLayer) map2.getLayers().get("Seta");
+        TiledMapTileLayer setas=(TiledMapTileLayer) map.getLayers().get("Seta");
         float endX=startX + setas.getWidth();
         float endY=startY + setas.getHeight();
 
@@ -86,22 +87,22 @@ public class Level2 implements Screen {
     }
     public void spawSeta(float x, float y){
         seta= new Seta();
-        seta.layer = (TiledMapTileLayer) map2.getLayers().get("Seta"); 
+        seta.layer = (TiledMapTileLayer) map.getLayers().get("Seta"); 
         seta.setPosition(x, y);
         stage.addActor(seta);
     }
 
     public void show() {
-        map2 = new TmxMapLoader().load("mapa2.tmx");
+        map = new TmxMapLoader().load("mapa.tmx");
         final float pixelsPerTile = 16;
-        renderer = new OrthogonalTiledMapRenderer(map2, 1 / pixelsPerTile);
+        renderer = new OrthogonalTiledMapRenderer(map, 1 / pixelsPerTile);
         camera = new OrthographicCamera();
 
         stage = new Stage();
         stage.getViewport().setCamera(camera);
 
         mario = new Mario();
-        mario.layer = (TiledMapTileLayer) map2.getLayers().get("Plataformas");
+        mario.layer = (TiledMapTileLayer) map.getLayers().get("Plataformas");
         mario.setPosition(20, 10);
         stage.addActor(mario);
         
@@ -109,12 +110,19 @@ public class Level2 implements Screen {
         goombas = new ArrayList();
         for (int i=0; i<10; i++){
             Goomba goomba = new Goomba();
-            goomba.layer = (TiledMapTileLayer) map2.getLayers().get("Plataformas"); 
+            goomba.layer = (TiledMapTileLayer) map.getLayers().get("Plataformas"); 
             goomba.setPosition((float) (Math.random()*100+40), 13);
             stage.addActor(goomba);
             goombas.add(goomba);
         }
-        
+        tortugas = new ArrayList();
+        for (int i=0; i<10; i++){
+            Turtle turtle = new Turtle();
+            turtle.layer = (TiledMapTileLayer) map.getLayers().get("Plataformas"); 
+            turtle.setPosition((float) (Math.random()*100+40), 13);
+            stage.addActor(turtle);
+            tortugas.add(turtle);
+        }
      
         
         monedas= new ArrayList<>();
@@ -153,6 +161,7 @@ public class Level2 implements Screen {
         this.overlapsGoombas();
         this.overlapsCajasDestruir();
         this.overlapsCajaSeta();
+        this.overlapsTurtles();
         
         if(this.seta!=null){
             this.overlapsSetas();
@@ -193,7 +202,7 @@ public class Level2 implements Screen {
     public void overlapsCajasMonedas(){
         float startX=0;
         float startY=0;
-        TiledMapTileLayer cajitaMoneda=(TiledMapTileLayer) map2.getLayers().get("Cajas_de_Monedas");
+        TiledMapTileLayer cajitaMoneda=(TiledMapTileLayer) map.getLayers().get("Cajas_de_Monedas");
         float endX=startX + cajitaMoneda.getWidth();
         float endY=startY + cajitaMoneda.getHeight();
 
@@ -222,7 +231,7 @@ public class Level2 implements Screen {
      public void overlapsCajaSeta(){
         float startX=0;
         float startY=0;
-        TiledMapTileLayer cajaSeta=(TiledMapTileLayer) map2.getLayers().get("CajaSeta");
+        TiledMapTileLayer cajaSeta=(TiledMapTileLayer) map.getLayers().get("CajaSeta");
         float endX=startX + cajaSeta.getWidth();
         float endY=startY + cajaSeta.getHeight();
 
@@ -237,7 +246,7 @@ public class Level2 implements Screen {
                            if(y+0.5f > mario.getY() && y-1.5f < mario.getY()){
                                 if(mario.yVelocity>0 && !mario.canJump){
                                     cajaSeta.setCell(x, y, null);
-                                    CapaSeta=(TiledMapTileLayer) map2.getLayers().get("Seta");
+                                    CapaSeta=(TiledMapTileLayer) map.getLayers().get("Seta");
                                     CapaSeta.setVisible(true);
                                     this.loadSeta(0,0);
                                 }
@@ -274,7 +283,27 @@ public class Level2 implements Screen {
             
         }   
     }
-    
+        public void overlapsTurtles() {
+        for(Turtle turtle : tortugas){
+            if (mario.getX()+0.5 > turtle.getX() && mario.getX()-0.5 < turtle.getX() && mario.getY() > turtle.getY()+0.5f && mario.getY() < turtle.getY()+1.5f){
+                mario.xVelocity = 50;
+                mario.yVelocity = 20;
+
+                if (turtle.die==true){
+                    turtle.remove();
+                }else {
+                    turtle.die=true;
+                    turtle.setX(turtle.getX()-0.8f);
+                }
+            }
+            
+            else if(mario.getX()+0.5 > turtle.getX() && mario.getY()+ 0.5 > turtle.getY() && mario.getX()-0.5 < turtle.getX() && mario.getY()-0.5 < turtle.getY()){
+                game.setScreen(new GameOver(game));
+                dispose();
+            }
+            
+        }   
+    }
      public void overlapsSetas() {
        
             if(mario.getX()+0.5 > seta.getX() && mario.getY()+ 0.5 > seta.getY() && mario.getX()-0.5 < seta.getX() && mario.getY()-0.5 < seta.getY()){
@@ -289,7 +318,7 @@ public class Level2 implements Screen {
     public void overlapsCajasDestruir(){
         float startX=0;
         float startY=0;
-        TiledMapTileLayer cajaDestruir=(TiledMapTileLayer) map2.getLayers().get("Caja_Destruir");
+        TiledMapTileLayer cajaDestruir=(TiledMapTileLayer) map.getLayers().get("Caja_Destruir");
         float endX=startX + cajaDestruir.getWidth();
         float endY=startY + cajaDestruir.getHeight();
 
