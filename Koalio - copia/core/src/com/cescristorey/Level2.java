@@ -27,6 +27,7 @@ public class Level2 implements Screen {
     ArrayList<Goomba> goombas;
     ArrayList <Moneda> monedas;
     ArrayList <Turtle> tortugas;
+    ArrayList <Intelligent_Turtle> tortuguitas;
     MarioBros game;
     Seta seta;
     int score=0;
@@ -93,7 +94,7 @@ public class Level2 implements Screen {
     }
 
     public void show() {
-        map = new TmxMapLoader().load("mapa.tmx");
+        map = new TmxMapLoader().load("mapa2.tmx");
         final float pixelsPerTile = 16;
         renderer = new OrthogonalTiledMapRenderer(map, 1 / pixelsPerTile);
         camera = new OrthographicCamera();
@@ -123,7 +124,15 @@ public class Level2 implements Screen {
             stage.addActor(turtle);
             tortugas.add(turtle);
         }
-     
+        tortuguitas = new ArrayList();
+        for(int i = 0 ; i < 7; i++){
+            Intelligent_Turtle tortu =  new Intelligent_Turtle();
+            tortu.layer = (TiledMapTileLayer) map.getLayers().get("Plataformas"); 
+            tortu.setPosition((float) (Math.random()*100+40), 1);
+//            tortu.setPosition(10, 13);
+            stage.addActor(tortu);
+            tortuguitas.add(tortu);
+        }
         
         monedas= new ArrayList<>();
         this.loadMoneda(0,0);
@@ -148,6 +157,25 @@ public class Level2 implements Screen {
             game.setScreen(new GameOver(game));
             dispose();
         }
+        
+        for(Intelligent_Turtle tortu : tortuguitas){
+            
+            if(mario.getX() >= tortu.getX()+2){
+                tortu.start_move = true;
+            }
+            if(mario.getX() > tortu.getX()+ 40){
+                tortu.start_move = false;
+            }
+            if(mario.getX() > tortu.getX()-10 && tortu.getX() > mario.getX()){
+                tortu.isFacingRight = false;
+            }
+            else if(tortu.getX() < mario.getX()){
+                tortu.isFacingRight = true;
+            }
+        
+        }
+        
+        
         camera.update();
 
         renderer.setView(camera);
@@ -156,16 +184,20 @@ public class Level2 implements Screen {
         stage.act(delta);
         stage.draw();
         
-        this.overlapsMonedas();
-        this.overlapsCajasMonedas();
-        this.overlapsGoombas();
-        this.overlapsCajasDestruir();
-        this.overlapsCajaSeta();
-        this.overlapsTurtles();
+        
+        
+//        this.overlapsMonedas();
+//        this.overlapsCajasMonedas();
+//        this.overlapsGoombas();
+//        this.overlapsCajasDestruir();
+//        this.overlapsCajaSeta();
+//        this.overlapsTurtles();
+        this.overlapsTurtlesInt();
         
         if(this.seta!=null){
             this.overlapsSetas();
         }
+        
         
         
         this.game.batch.begin();
@@ -283,7 +315,7 @@ public class Level2 implements Screen {
             
         }   
     }
-        public void overlapsTurtles() {
+    public void overlapsTurtles() {
         for(Turtle turtle : tortugas){
             if (mario.getX()+0.5 > turtle.getX() && mario.getX()-0.5 < turtle.getX() && mario.getY() > turtle.getY()+0.5f && mario.getY() < turtle.getY()+1.5f){
                 mario.xVelocity = 50;
@@ -298,6 +330,27 @@ public class Level2 implements Screen {
             }
             
             else if(mario.getX()+0.5 > turtle.getX() && mario.getY()+ 0.5 > turtle.getY() && mario.getX()-0.5 < turtle.getX() && mario.getY()-0.5 < turtle.getY()){
+                game.setScreen(new GameOver(game));
+                dispose();
+            }
+            
+        }   
+    }
+        public void overlapsTurtlesInt() {
+        for(Intelligent_Turtle tortu : tortuguitas){
+            if (mario.getX()+0.5 > tortu.getX() && mario.getX()-0.5 < tortu.getX() && mario.getY() > tortu.getY()+0.5f && mario.getY() < tortu.getY()+1.5f){
+                mario.xVelocity = 50;
+                mario.yVelocity = 20;
+
+                if (tortu.die==true){
+                    tortu.remove();
+                }else {
+                    tortu.die=true;
+                    tortu.setX(tortu.getX()-0.8f);
+                }
+            }
+            
+            else if(mario.getX()+0.5 > tortu.getX() && mario.getY()+ 0.5 > tortu.getY() && mario.getX()-0.5 < tortu.getX() && mario.getY()-0.5 < tortu.getY()){
                 game.setScreen(new GameOver(game));
                 dispose();
             }

@@ -60,7 +60,7 @@ public class Start_Screen implements Screen{
         game.batch.end();
 
         if (Gdx.input.isTouched()) {
-                game.setScreen(new Level1(game));
+                game.setScreen(new Level2(game));
                 dispose();
         }
     }
