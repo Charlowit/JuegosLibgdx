@@ -109,7 +109,7 @@ public class Level2 implements Screen {
         
         
         goombas = new ArrayList();
-        for (int i=0; i<10; i++){
+        for (int i=0; i<5; i++){
             Goomba goomba = new Goomba();
             goomba.layer = (TiledMapTileLayer) map.getLayers().get("Plataformas"); 
             goomba.setPosition((float) (Math.random()*100+40), 13);
@@ -117,7 +117,7 @@ public class Level2 implements Screen {
             goombas.add(goomba);
         }
         tortugas = new ArrayList();
-        for (int i=0; i<10; i++){
+        for (int i=0; i<5; i++){
             Turtle turtle = new Turtle();
             turtle.layer = (TiledMapTileLayer) map.getLayers().get("Plataformas"); 
             turtle.setPosition((float) (Math.random()*100+40), 13);
@@ -129,7 +129,7 @@ public class Level2 implements Screen {
             Intelligent_Turtle tortu =  new Intelligent_Turtle();
             tortu.layer = (TiledMapTileLayer) map.getLayers().get("Plataformas"); 
             tortu.setPosition((float) (Math.random()*100+40), 1);
-//            tortu.setPosition(10, 13);
+
             stage.addActor(tortu);
             tortuguitas.add(tortu);
         }
@@ -186,12 +186,12 @@ public class Level2 implements Screen {
         
         
         
-//        this.overlapsMonedas();
-//        this.overlapsCajasMonedas();
-//        this.overlapsGoombas();
-//        this.overlapsCajasDestruir();
-//        this.overlapsCajaSeta();
-//        this.overlapsTurtles();
+        this.overlapsMonedas();
+        this.overlapsCajasMonedas();
+        this.overlapsGoombas();
+       this.overlapsCajasDestruir();
+        this.overlapsCajaSeta();
+        this.overlapsTurtles();
         this.overlapsTurtlesInt();
         
         if(this.seta!=null){
